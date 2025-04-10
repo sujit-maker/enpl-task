@@ -11,7 +11,7 @@ import { LocalStrategy } from './local.strategy';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot(),// Load environment variables from .env file
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule], 
