@@ -36,7 +36,7 @@
    // Define menu items
   const menuItems = [
     { title: "Dashboard", url: "/dashboard", icon: BiSolidDashboard },
-    { title: "Department", url: "/department", icon: BiStoreAlt },
+    { title: "Departments", url: "/department", icon: BiStoreAlt },
     ...(userType === "SUPERADMIN"
       ? [{ title: "User Management", url: "/users", icon: BiUserCircle }]
       : []),
