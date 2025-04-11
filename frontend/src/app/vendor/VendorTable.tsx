@@ -1,6 +1,27 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Plus } from "lucide-react";
+import { Trash2, PencilLine } from "lucide-react";
+
+
+interface VendorContact {
+  title: string;
+  firstName: string;
+  lastName: string;
+  contactPhoneNumber: string;
+  contactEmailId: string;
+  designation: string;
+  department: string;
+  landlineNumber: string;
+}
+
+interface BankDetail {
+  accountNumber: string;
+  ifscCode: string;
+  bankName: string;
+  branchName: string;
+}
 
 interface Vendor {
   id?: number;
@@ -10,9 +31,32 @@ interface Vendor {
   contactName: string;
   contactNumber: string;
   emailId: string;
-  hodId?:number;
-  managerId?:number;
+  website: string;
+  products: string[];
+  creditTerms: string;
+  creditLimit: string;
+  remark: string;
+  contacts: VendorContact[];
+  bankDetails: BankDetail[];
 }
+
+const emptyContact: VendorContact = {
+  title: "",
+  firstName: "",
+  lastName: "",
+  contactPhoneNumber: "",
+  contactEmailId: "",
+  designation: "",
+  department: "",
+  landlineNumber: "",
+};
+
+const emptyBank: BankDetail = {
+  accountNumber: "",
+  ifscCode: "",
+  bankName: "",
+  branchName: "",
+};
 
 const initialFormState: Vendor = {
   vendorName: "",
@@ -21,341 +65,355 @@ const initialFormState: Vendor = {
   contactName: "",
   contactNumber: "",
   emailId: "",
+  website: "",
+  products: [],
+  creditTerms: "",
+  creditLimit: "",
+  remark: "",
+  contacts: [emptyContact],
+  bankDetails: [emptyBank],
 };
 
 const VendorTable: React.FC = () => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
-
-  const [formData, setFormData] = useState<Vendor>({
-    vendorName: '',
-    registerAddress: '',
-    gstNo: '',
-    contactName: '',
-    contactNumber: '',
-    emailId: '',
-  });
-
-    // Pagination States
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+  const [formData, setFormData] = useState<Vendor>(initialFormState);
 
   const fetchVendors = async () => {
-    try {
-      const response = await axios.get("http://localhost:8000/vendors");
-      setVendors(response.data);
-    } catch (error) {
-      console.error("Error fetching vendors:", error);
-    }
+    const response = await axios.get("http://localhost:8000/vendors");
+    setVendors(response.data);
   };
 
-  const handleDelete = async (id: number) => {
-    try {
-      await axios.delete(`http://localhost:8000/vendors/${id}`);
-      alert("Vendor deleted successfully!");
-      fetchVendors();
-    } catch (error) {
-      console.error("Error deleting vendor:", error);
-    }
-  };
-
-  const handleCreate = async () => {
-    try {
-      await axios.post("http://localhost:8000/vendors", formData);
-      alert("Vendor created successfully!");
-      setFormData(initialFormState); // Reset form
-      setIsCreateModalOpen(false);
-      fetchVendors();
-    } catch (error) {
-      console.error("Error creating vendor:", error);
-    }
-  };
-  
-  const handleUpdate = async () => {
-    if (!selectedVendor) return;
-    try {
-      await axios.put(`http://localhost:8000/vendors/${selectedVendor.id}`, formData);
-      alert("Vendor updated successfully!");
-      setFormData(initialFormState); // Reset form
-      setSelectedVendor(null);
-      setIsUpdateModalOpen(false);
-      fetchVendors();
-    } catch (error) {
-      console.error("Error updating vendor:", error);
-    }
-  };
-  
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handleEditClick = (vendor: Vendor) => {
-    setSelectedVendor(vendor);
-    setFormData(vendor); 
-    setIsUpdateModalOpen(true);
-  };
-
-  const handleCancel = () => {
-    setFormData(initialFormState); // Reset form
-    setIsCreateModalOpen(false);
-    setIsUpdateModalOpen(false);
-    setSelectedVendor(null);
-  };
-  
   useEffect(() => {
     fetchVendors();
   }, []);
 
-  const indexOfLastUser = currentPage * itemsPerPage;
-  const indexOfFirstUser = indexOfLastUser - itemsPerPage;
-  const currentVendors = vendors.slice(indexOfFirstUser, indexOfLastUser);
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: string,
+    index?: number,
+    type?: string
+  ) => {
+    const { name, value } = e.target;
 
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+    if (type === "contact" && index !== undefined) {
+      const updated = [...formData.contacts];
+      updated[index][name as keyof VendorContact] = value;
+      setFormData((prev) => ({ ...prev, contacts: updated }));
+    } else if (type === "bank" && index !== undefined) {
+      const updated = [...formData.bankDetails];
+      updated[index][name as keyof BankDetail] = value;
+      setFormData((prev) => ({ ...prev, bankDetails: updated }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const addContact = () =>
+    setFormData((prev) => ({ ...prev, contacts: [...prev.contacts, emptyContact] }));
+  const removeContact = (index: number) => {
+    const updated = [...formData.contacts];
+    updated.splice(index, 1);
+    setFormData((prev) => ({ ...prev, contacts: updated }));
+  };
+
+  const addBank = () =>
+    setFormData((prev) => ({ ...prev, bankDetails: [...prev.bankDetails, emptyBank] }));
+  const removeBank = (index: number) => {
+    const updated = [...formData.bankDetails];
+    updated.splice(index, 1);
+    setFormData((prev) => ({ ...prev, bankDetails: updated }));
+  };
+
+  const handleEdit = (vendor: Vendor) => {
+    setFormData(vendor); 
+    setIsCreateModalOpen(true);  
+  };
+  
+  const handleDelete = async (id?: number) => {
+    if (!id) return;
+    const confirm = window.confirm("Are you sure you want to delete this vendor?");
+    if (!confirm) return;
+  
+    try {
+      await axios.delete(`http://localhost:8000/vendors/${id}`);
+      alert("Vendor deleted successfully!");
+      fetchVendors();
+    } catch (err) {
+      console.error("Error deleting vendor:", err);
+      alert("Failed to delete vendor.");
+    }
+  };
+  
+
+  const handleCreate = async () => {
+    // List of required top-level fields
+    const requiredFields = [
+      "vendorName",
+      "registerAddress",
+      "gstNo",
+      "contactName",
+      "contactNumber",
+      "emailId",
+      "creditTerms",
+      "creditLimit",
+    ];
+  
+    // Check if any required field is empty
+    const missingFields = requiredFields.filter(
+      (field) => !formData[field as keyof Vendor]?.toString().trim()
+    );
+  
+    if (missingFields.length > 0) {
+      alert(`Please fill out the following fields: ${missingFields.join(", ")}`);
+      return;
+    }
+  
+    // At least one contact must be valid
+    const validContacts = formData.contacts.filter(
+      (c) => c.firstName.trim() || c.lastName.trim() || c.contactPhoneNumber.trim()
+    );
+    if (validContacts.length === 0) {
+      alert("Please add at least one valid contact.");
+      return;
+    }
+  
+    // At least one bank detail must be valid
+    const validBanks = formData.bankDetails.filter(
+      (b) => b.accountNumber.trim() || b.ifscCode.trim() || b.bankName.trim()
+    );
+    if (validBanks.length === 0) {
+      alert("Please add at least one valid bank detail.");
+      return;
+    }
+  
+    // At least one product selected
+    if (!formData.products || formData.products.length === 0) {
+      alert("Please select at least one product.");
+      return;
+    }
+  
+    try {
+      if (formData.id) {
+        await axios.put(`http://localhost:8000/vendors/${formData.id}`, {
+          ...formData,
+          contacts: validContacts,
+          bankDetails: validBanks,
+        });
+      } else {
+        await axios.post("http://localhost:8000/vendors", {
+          ...formData,
+          contacts: validContacts,
+          bankDetails: validBanks,
+        });
+      }
+      
+      alert(formData.id ? "Vendor updated successfully!" : "Vendor created successfully!");
+      setFormData(initialFormState);
+      setIsCreateModalOpen(false);
+      fetchVendors();
+    } catch (err) {
+      console.error("Error creating vendor:", err);
+      alert("Failed to create vendor. Please try again.");
+    }
+  };
+  
 
   return (
-    <div className="flex h-screen mt-3">
       <div className="flex-1 p-6 overflow-auto lg:ml-72 "> 
         <div className="flex justify-between items-center mb-5 mt-16">
           <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          
+          onClick={() => {
+            setFormData(initialFormState); // clear form
+            setIsCreateModalOpen(true);
+          }}
+                      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
             Add Vendor
           </button>
         </div>
 
-        <div className="overflow-x-auto" style={{ maxWidth: "100vw" }}>
-          <table className="min-w-[700px] w-full text-center border-collapse border border-gray-200">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border border-gray-300 p-2">Vendor Name</th>
-                <th className="border border-gray-300 p-2">Contact Name</th>
-                <th className="border border-gray-300 p-2">Contact Number</th>
-                <th className="border border-gray-300 p-2">Email</th>
-                <th className="border border-gray-300 p-2">Actions</th>
+      <div className="overflow-x-auto" style={{ maxWidth: "100vw" }}>
+      <table className="min-w-[700px] w-full text-center border-collapse border border-gray-200"> 
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="p-2 border">Vendor Name</th>
+              <th className="p-2 border">First Name</th>
+              <th className="p-2 border">Last Name</th>
+             
+              <th className="p-2 border">Products</th>
+
+
+              <th className="p-2 border">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {vendors.map((vendor) => (
+              <tr key={vendor.id} className="border-b">
+                <td className="p-2 border">{vendor.vendorName}</td>
+                <td className="p-2 border">
+                  {vendor.contacts.map((c) => c.firstName).join(", ")}
+                </td>
+                <td className="p-2 border">
+                  {vendor.contacts.map((c) => c.lastName).join(", ")}
+                </td>
+                <td className="p-2 border  text-red-800">
+  {Array.isArray(vendor.products)
+    ? vendor.products.map((p) => p).join(", ")
+    : ""}
+</td>
+<td className="p-2 border flex justify-center gap-3 items-center">
+  <button
+    onClick={() => handleEdit(vendor)}
+    className="text-blue-500 hover:text-blue-700"
+    title="Edit"
+  >
+    <PencilLine size={18} />
+  </button>
+  <button
+    onClick={() => handleDelete(vendor.id)}
+    className="text-red-500 hover:text-red-700"
+    title="Delete"
+  >
+    <Trash2 size={18} />
+  </button>
+</td>
+
               </tr>
-            </thead>
-            <tbody>
-              {currentVendors.map((vendor) => (
-                <tr key={vendor.id} className="hover:bg-gray-100">
-                  <td className="border border-gray-300 p-2">{vendor.vendorName}</td>
-                  <td className="border border-gray-300 p-2">{vendor.contactName}</td>
-                  <td className="border border-gray-300 p-2">{vendor.contactNumber}</td>
-                  <td className="border border-gray-300 p-2">{vendor.emailId}</td>
-                  <td className="border border-gray-300 p-2">
-                    <button
-                      onClick={() => handleEditClick(vendor)}
-                      className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
-                      aria-label="Edit Vendor"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(vendor.id!)}
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                      aria-label="Delete Vendor"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {isCreateModalOpen && (
+        <div className="fixed inset-0 ml-48 mt-20  bg-gray bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl overflow-hidden">
+          <div className="overflow-auto max-h-[90vh]">
+            <div className="min-w-[800px] p-6">
+          <h3 className="text-lg font-bold mb-4 text-center">
+  {formData.id ? "Edit Vendor" : "Create Vendor"}
+</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                "vendorName",
+                "registerAddress",
+                "gstNo",
+                "contactName",
+                "contactNumber",
+                "emailId",
+                "website",
+                "creditTerms",
+                "creditLimit",
+                "remark",
+              ].map((field) => (
+                <input
+                  key={field}
+                  name={field}
+                  placeholder={field.replace(/([A-Z])/g, " $1")}
+                  value={(formData as any)[field]}
+                  onChange={(e) => handleInputChange(e, field)}
+                  className="border p-2 rounded"
+                />
               ))}
-            </tbody>
-          </table>
-       
+            </div>
+            <div>
+  <label className="font-semibold block mb-2">Products</label>
+  {["A", "B", "C", "D", "E", "F"].map((product) => (
+    <label key={product} className="inline-flex items-center mr-4">
+      <input
+        type="checkbox"
+        value={product}
+        checked={formData.products.includes(product)}
+        onChange={(e) => {
+          const { checked, value } = e.target;
+          setFormData((prev) => ({
+            ...prev,
+            products: checked
+              ? [...prev.products, value]
+              : prev.products.filter((p) => p !== value),
+          }));
+        }}
+        className="mr-2"
+      />
+      {product}
+    </label>
+  ))}
+</div>
+
+
+            <div className="mt-6">
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold">Contacts</h4>
+                <button onClick={addContact} className="text-blue-600">
+                  <Plus size={20} />
+                </button>
+              </div>
+              {formData.contacts.map((contact, i) => (
+                <div key={i} className="grid grid-cols-1 md:grid-cols-4 gap-2 mt-2 items-center">
+                  {Object.keys(emptyContact).map((key) => (
+                    <input
+                      key={key}
+                      name={key}
+                      placeholder={key.replace(/([A-Z])/g, " $1")}
+                      value={(contact as any)[key]}
+                      onChange={(e) => handleInputChange(e, key, i, "contact")}
+                      className="border p-2 rounded"
+                    />
+                  ))}
+                  <button onClick={() => removeContact(i)} className="text-red-600">
+                    -
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6">
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold">Bank Details</h4>
+                <button onClick={addBank} className="text-blue-600">
+                  <Plus size={20} />
+                </button>
+              </div>
+              {formData.bankDetails.map((bank, i) => (
+                <div key={i} className="grid grid-cols-1 md:grid-cols-5 gap-2 mt-2 items-center">
+                  {Object.keys(emptyBank).map((key) => (
+                    <input
+                      key={key}
+                      name={key}
+                      placeholder={key.replace(/([A-Z])/g, " $1")}
+                      value={(bank as any)[key]}
+                      onChange={(e) => handleInputChange(e, key, i, "bank")}
+                      className="border p-2 rounded"
+                    />
+                  ))}
+                  <button onClick={() => removeBank(i)} className="text-red-600">
+                    -
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end gap-2 mt-6">
+              <button
+                onClick={() => setIsCreateModalOpen(false)}
+                className="px-4 py-2 rounded bg-gray-500 text-white"
+              >
+                Cancel
+              </button>
+              <button
+  onClick={handleCreate}
+  className="px-4 py-2 rounded bg-blue-600 text-white"
+>
+  {formData.id ? "Update" : "Save"}
+</button>
+
+</div>
         </div>
-        <div className="flex justify-center mt-4">
-          <button
-            onClick={() => paginate(currentPage - 1)}
-            className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 disabled:opacity-50"
-            disabled={currentPage === 1}
-          >
-            Previous
-          </button>
-          {/* Page Numbers */}
-          {[...Array(Math.ceil(vendors.length / itemsPerPage))].map((_, index) => (
-            <button
-              key={index}
-              onClick={() => paginate(index + 1)}
-              className={`mx-1 px-4 py-2 rounded ${
-                currentPage === index + 1 ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-700"
-              } hover:bg-blue-400`}
-            >
-              {index + 1}
-            </button>
-          ))}
-          <button
-            onClick={() => paginate(currentPage + 1)}
-            className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 disabled:opacity-50"
-            disabled={currentPage === Math.ceil(vendors.length / itemsPerPage)}
-          >
-            Next
-          </button>
-        </div>
-
-        {/* Create Modal */}
-        {isCreateModalOpen && (
-  <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-    <div className="bg-white p-6 rounded shadow-lg w-full max-w-md mx-4">
-      <h2 className="text-xl font-bold mb-4 text-center">Add New Vendor</h2>
-
-      <input
-        type="text"
-        name="vendorName"
-        value={formData.vendorName}
-        onChange={handleInputChange}
-        placeholder="Vendor Name"
-        className="border p-3 mb-3 w-full rounded"
-      />
-
-      <input
-        type="text"
-        name="registerAddress"
-        value={formData.registerAddress}
-        onChange={handleInputChange}
-        placeholder="Address"
-        className="border p-3 mb-3 w-full rounded"
-      />
-
-      <input
-        type="text"
-        name="gstNo"
-        value={formData.gstNo}
-        onChange={handleInputChange}
-        placeholder="GST No."
-        className="border p-3 mb-3 w-full rounded"
-      />
-
-      <input
-        type="text"
-        name="contactName"
-        value={formData.contactName}
-        onChange={handleInputChange}
-        placeholder="Contact Name"
-        className="border p-3 mb-3 w-full rounded"
-      />
-
-      <input
-        type="text"
-        name="contactNumber"
-        value={formData.contactNumber}
-        onChange={handleInputChange}
-        placeholder="Contact Number"
-        className="border p-3 mb-3 w-full rounded"
-      />
-
-      <input
-        type="email"
-        name="emailId"
-        value={formData.emailId}
-        onChange={handleInputChange}
-        placeholder="Email"
-        className="border p-3 mb-3 w-full rounded"
-      />
-
-      <div className="flex flex-col sm:flex-row gap-2">
-        <button
-          onClick={handleCreate}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full"
-        >
-          Create Vendor
-        </button>
-        <button
-          onClick={handleCancel}
-          className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 w-full"
-        >
-          Close
-        </button>
       </div>
     </div>
   </div>
-)}
-
-{/* Update Modal */}
-{isUpdateModalOpen && selectedVendor && (
-  <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-    <div className="bg-white p-6 rounded shadow-lg w-full max-w-md mx-4">
-      <h2 className="text-xl font-bold mb-4 text-center">Edit Vendor</h2>
-
-      <input
-        type="text"
-        name="vendorName"
-        value={formData.vendorName}
-        onChange={handleInputChange}
-        placeholder="Vendor Name"
-        className="border p-3 mb-3 w-full rounded"
-      />
-
-      <input
-        type="text"
-        name="registerAddress"
-        value={formData.registerAddress}
-        onChange={handleInputChange}
-        placeholder="Address"
-        className="border p-3 mb-3 w-full rounded"
-      />
-
-      <input
-        type="text"
-        name="gstNo"
-        value={formData.gstNo}
-        onChange={handleInputChange}
-        placeholder="GST No."
-        className="border p-3 mb-3 w-full rounded"
-      />
-
-      <input
-        type="text"
-        name="contactName"
-        value={formData.contactName}
-        onChange={handleInputChange}
-        placeholder="Contact Name"
-        className="border p-3 mb-3 w-full rounded"
-      />
-
-      <input
-        type="text"
-        name="contactNumber"
-        value={formData.contactNumber}
-        onChange={handleInputChange}
-        placeholder="Contact Number"
-        className="border p-3 mb-3 w-full rounded"
-      />
-
-      <input
-        type="email"
-        name="emailId"
-        value={formData.emailId}
-        onChange={handleInputChange}
-        placeholder="Email"
-        className="border p-3 mb-3 w-full rounded"
-      />
-
-      <div className="flex flex-col sm:flex-row gap-2">
-        <button
-          onClick={handleUpdate}
-          className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 w-full"
-        >
-          Update Vendor
-        </button>
-        <button
-          onClick={() => setIsUpdateModalOpen(false)}
-          className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 w-full"
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-      </div>
+      )}
     </div>
   );
 };

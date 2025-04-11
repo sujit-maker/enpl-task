@@ -1,42 +1,135 @@
-import { IsOptional, IsString, IsEmail, IsInt } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsEmail,
+  IsInt,
+  IsOptional,
+  IsArray,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+
+class CustomerContactDto {
+  @IsNotEmpty()
+  @IsString()
+  title: string;
+
+  @IsNotEmpty()
+  @IsString()
+  firstName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  lastName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  contactPhoneNumber: string;
+
+  @IsNotEmpty()
+  @IsEmail()
+  contactEmailId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  designation: string;
+
+  @IsNotEmpty()
+  @IsString()
+  department: string;
+
+  @IsOptional()
+  @IsString()
+  landlineNumber?: string;
+}
+
+class CustomerBankDetailDto {
+  @IsNotEmpty()
+  @IsString()
+  bankName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  accountNumber: string;
+
+  @IsNotEmpty()
+  @IsString()
+  ifscCode: string;
+
+  @IsNotEmpty()
+  @IsString()
+  branchName: string;
+}
 
 export class UpdateCustomerDto {
-
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  customerId?: string;
+  customerId: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  customerName?: string;
+  customerName: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  registerAddress?: string;
+  registerAddress: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  gstNo?: string;
+  gstNo: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  contactName?: string;
+  contactName: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  contactNumber?: string;
+  contactNumber: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsEmail()
-  emailId?: string;
+  emailId: string;
 
-  
-    @IsInt()
-      hodId: number;
-    
-      @IsInt()
-      managerId?: number;
-    
-      @IsInt()
-      executiveId?: number;
+  @IsOptional()
+  @IsString()
+  website?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  products?: string[]; // example: ["a", "b", "c"]
+
+  @IsNotEmpty()
+  @IsString()
+  creditTerms: string;
+
+  @IsNotEmpty()
+  @IsString()
+  creditLimit: string;
+
+  @IsNotEmpty()
+  @IsString()
+  remark: string;
+
+  @IsOptional()
+  @IsInt()
+  hodId?: number;
+
+  @IsOptional()
+  @IsInt()
+  managerId?: number;
+
+  @IsOptional()
+  @IsInt()
+  executiveId?: number;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CustomerContactDto)
+  contacts: CustomerContactDto[];
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CustomerBankDetailDto)
+  bankDetails: CustomerBankDetailDto[];
 }

@@ -9,8 +9,15 @@ export class ServiceService {
 
   // ✅ Create a new Service
   async createService(createServiceDto: CreateServiceDto) {
-    const { serviceName, serviceDescription, SAC, departmentId, serviceCategoryId, serviceSubCategoryId } = createServiceDto;
-
+    const {
+      serviceName,
+      serviceDescription,
+      SAC,
+      departmentId,
+      serviceCategoryId,
+      serviceSubCategoryId,
+    } = createServiceDto;
+  
     return this.prisma.service.create({
       data: {
         serviceName,
@@ -22,7 +29,9 @@ export class ServiceService {
       },
     });
   }
-
+  
+  
+  
   // ✅ Get all Services
   async getAllServices() {
     return this.prisma.service.findMany({

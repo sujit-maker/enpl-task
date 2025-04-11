@@ -68,6 +68,12 @@ const SiteTable: React.FC = () => {
   };
 
   const handleCreate = async () => {
+    const { siteId, siteName, siteAddress, contactName, contactNumber, emailId } = formData;
+  
+    if (!siteId || !siteName || !siteAddress || !contactName || !contactNumber || !emailId) {
+      alert("Please fill in all required fields.");
+      return;
+    }
     try {
       await axios.post("http://localhost:8000/sites", formData);
       alert("Site added successfully!");

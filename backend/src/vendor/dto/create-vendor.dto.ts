@@ -1,4 +1,67 @@
-import { IsNotEmpty, IsString, IsEmail, IsInt, IsOptional } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsEmail,
+  IsInt,
+  IsOptional,
+  IsArray,
+  ValidateNested,
+  IsObject,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+
+class CreateVendorContactDto {
+  @IsNotEmpty()
+  @IsString()
+  title: string;
+
+  @IsNotEmpty()
+  @IsString()
+  firstName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  lastName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  contactPhoneNumber: string;
+
+  @IsNotEmpty()
+  @IsEmail()
+  contactEmailId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  designation: string;
+
+  @IsNotEmpty()
+  @IsString()
+  department: string;
+
+  @IsOptional()
+  @IsString()
+  landlineNumber?: string;
+}
+
+class CreateBankDetailDto {
+  @IsNotEmpty()
+  @IsString()
+  bankName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  accountNumber: string;
+
+  @IsNotEmpty()
+  @IsString()
+  ifscCode: string;
+
+  @IsNotEmpty()
+  @IsString()
+  branchName: string;
+
+}
 
 export class CreateVendorDto {
   @IsNotEmpty()
@@ -16,7 +79,7 @@ export class CreateVendorDto {
   @IsNotEmpty()
   @IsString()
   contactName: string;
-
+                
   @IsNotEmpty()
   @IsString()
   contactNumber: string;
@@ -25,11 +88,46 @@ export class CreateVendorDto {
   @IsEmail()
   emailId: string;
 
+  @IsOptional()
+  @IsString()
+  website?: string;
+
+  @IsOptional()
+  @IsObject()
+  products?: any;
+
+  @IsNotEmpty()
+  @IsString()
+  creditTerms: string;
+
+  @IsNotEmpty()
+  @IsString()
+  creditLimit: string;
+
+  @IsNotEmpty()
+  @IsString()
+  remark: string;
+
+
+  @IsOptional()
   @IsInt()
-    @IsOptional()
-    hodId?: number; 
-  
-    @IsInt()
-    @IsOptional()
-    managerId?: number; 
+  hodId?: number;
+
+  @IsOptional()
+  @IsInt()
+  managerId?: number;
+
+  @IsOptional()
+  @IsInt()
+  executiveId?: number;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateVendorContactDto)
+  contacts: CreateVendorContactDto[];
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateBankDetailDto)
+  bankDetails: CreateBankDetailDto[];
 }

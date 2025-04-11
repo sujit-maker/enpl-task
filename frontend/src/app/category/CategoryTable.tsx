@@ -50,6 +50,13 @@ const CategoryTable: React.FC = () => {
   };
 
   const handleCreate = async () => {
+    const { categoryName } = formData;
+  
+    if (!categoryName) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+
     try {
       await axios.post("http://localhost:8000/category", {
         categoryName: formData.categoryName,

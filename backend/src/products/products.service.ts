@@ -35,6 +35,7 @@ export class ProductsService {
     return this.prisma.product.findMany({
       include: {
         category: true,
+        subCategory: true,
       },
     });
   }
@@ -45,6 +46,7 @@ export class ProductsService {
       where: { id: Number(id) }, // Ensure ID is converted to number
       include: {
         category: true,
+        subCategory: true,
       },
     });
 

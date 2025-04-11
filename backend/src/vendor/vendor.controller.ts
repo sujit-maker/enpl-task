@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Patch, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Patch, Put, ParseIntPipe } from '@nestjs/common';
 import { VendorService } from './vendor.service';
 import { CreateVendorDto } from './dto/create-vendor.dto';
 import { UpdateVendorDto } from './dto/update-vendor.dto';
@@ -19,24 +19,19 @@ export class VendorController {
     return this.vendorService.findAll();
   }
 
-  // Get a single vendor by ID
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.vendorService.findOne(Number(id));
-  }
+async findOne(@Param('id', ParseIntPipe) id: number) {
+  return this.vendorService.findOne(id);
+}
 
-  // Update vendor details
-  @Put(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateVendorDto: UpdateVendorDto,
-  ) {
-    return this.vendorService.update(Number(id), updateVendorDto);
-  }
+@Put(':id')
+async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateVendorDto) {
+  return this.vendorService.update(id, dto);
+}
 
-  // Delete vendor
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.vendorService.remove(Number(id));
-  }
+@Delete(':id')
+async remove(@Param('id', ParseIntPipe) id: number) {
+  return this.vendorService.remove(id);
+}
+
 }

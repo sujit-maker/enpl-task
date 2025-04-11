@@ -39,8 +39,14 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
 
   const fetchSubCategories = (categoryId: string) => {
     const category = categories.find((cat) => cat.id.toString() === categoryId);
-    setSubCategories(category ? category.subCategories : []);
+    const validSubCategories = category
+      ? category.subCategories.filter(
+          (sub) => sub.subCategoryName && sub.subCategoryName.trim() !== ""
+        )
+      : [];
+    setSubCategories(validSubCategories);
   };
+  
 
   const resetForm = () => {
     setProductId("");

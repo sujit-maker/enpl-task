@@ -1,4 +1,66 @@
-import { IsOptional, IsString, IsEmail, IsInt } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsEmail,
+  IsInt,
+  IsArray,
+  ValidateNested,
+  IsObject,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+
+class UpdateVendorContactDto {
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  lastName?: string;
+
+  @IsOptional()
+  @IsString()
+  contactPhoneNumber?: string;
+
+  @IsOptional()
+  @IsEmail()
+  contactEmailId?: string;
+
+  @IsOptional()
+  @IsString()
+  designation?: string;
+
+  @IsOptional()
+  @IsString()
+  department?: string;
+
+  @IsOptional()
+  @IsString()
+  landlineNumber?: string;
+}
+
+class UpdateBankDetailDto {
+  @IsOptional()
+  @IsString()
+  bankName?: string;
+
+  @IsOptional()
+  @IsString()
+  accountNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  ifscCode?: string;
+
+  @IsOptional()
+  @IsString()
+  branchName?: string;
+
+}
 
 export class UpdateVendorDto {
   @IsOptional()
@@ -25,11 +87,48 @@ export class UpdateVendorDto {
   @IsEmail()
   emailId?: string;
 
+  @IsOptional()
+  @IsString()
+  website?: string;
+
+  @IsOptional()
+  @IsObject()
+  products?: any;
+
+  @IsOptional()
+  @IsString()
+  creditTerms?: string;
+
+  @IsOptional()
+  @IsString()
+  creditLimit?: string;
+
+  @IsOptional()
+  @IsString()
+  remark?: string;
+
+
+  @IsOptional()
   @IsInt()
-    @IsOptional()
-    hodId?: number; 
-  
-    @IsInt()
-    @IsOptional()
-    managerId?: number; 
+  hodId?: number;
+
+  @IsOptional()
+  @IsInt()
+  managerId?: number;
+
+  @IsOptional()
+  @IsInt()
+  executiveId?: number;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => UpdateVendorContactDto)
+  contacts?: UpdateVendorContactDto[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => UpdateBankDetailDto)
+  bankDetails?: UpdateBankDetailDto[];
 }

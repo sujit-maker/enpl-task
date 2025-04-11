@@ -98,9 +98,45 @@ model Vendor {
   contactName     String
   contactNumber   String
   emailId         String @unique
+
+  website        String?
+  products       Json?
+  creditTerms    String
+  creditLimit    String
+  remark         String
+
   hodId         Int?
   managerId     Int?
   executiveId  Int?
+  createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+
+  contacts        VendorContact[]  @relation("VendorContacts")
+  bankDetails     BankDetail[]     @relation("VendorBankDetails")
+}
+
+model BankDetail {
+  id               Int     @id @default(autoincrement())
+  bankName         String
+  accountNumber    String
+  ifscCode         String
+  branchName       String
+  vendorId         Int
+  vendor           Vendor  @relation("VendorBankDetails", fields: [vendorId], references: [id], onDelete: Cascade)
+}
+
+model VendorContact {
+  id                  Int    @id @default(autoincrement())
+  title               String
+  firstName           String
+  lastName            String
+  contactPhoneNumber  String
+  contactEmailId      String
+  designation         String
+  department          String
+  landlineNumber      String?
+  vendorId            Int
+  vendor              Vendor  @relation("VendorContacts", fields: [vendorId], references: [id], onDelete: Cascade)
 }
 
 model Customer {
@@ -117,8 +153,42 @@ model Customer {
   executiveId  Int?                             
   Sites           Site[]
   Task            Task[]
+  website        String?
+  products       Json?
+  creditTerms    String
+  creditLimit    String
+  remark         String
+  createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+
+
+  contacts        CustomerContact[]  @relation("CustomerContacts")
+  bankDetails     CustomerBankDetail[]     @relation("CustomerBankDetails")
 }
 
+model CustomerBankDetail {
+  id               Int     @id @default(autoincrement())
+  bankName         String
+  accountNumber    String
+  ifscCode         String
+  branchName       String
+  customerId         Int
+  customer          Customer  @relation("CustomerBankDetails", fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+model CustomerContact {
+  id                  Int    @id @default(autoincrement())
+  title               String
+  firstName           String
+  lastName            String
+  contactPhoneNumber  String
+  contactEmailId      String
+  designation         String
+  department          String
+  landlineNumber      String?
+  customerId            Int
+  customer              Customer  @relation("CustomerContacts", fields: [customerId], references: [id], onDelete: Cascade)
+}
 model Site {
   id            Int      @id @default(autoincrement())
   siteId        String   @unique
