@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsEmail } from 'class-validator';
+import { IsNotEmpty, IsString, IsEmail, IsArray, IsOptional } from 'class-validator';
 
 export class CreateSiteDto {
   @IsNotEmpty()
@@ -13,17 +13,20 @@ export class CreateSiteDto {
   @IsString()
   siteAddress: string;
 
-  @IsNotEmpty()
-  @IsString()
-  contactName: string;
+  @IsArray()
+  @IsString({ each: true }) // Validate each contact name as a string
+  @IsOptional() // Optional because you may pass an empty array or not pass anything
+  contactName: string[];
 
-  @IsNotEmpty()
-  @IsString()
-  contactNumber: string;
+  @IsArray()
+  @IsString({ each: true }) // Validate each contact number as a string
+  @IsOptional()
+  contactNumber: string[];
 
-  @IsNotEmpty()
-  @IsEmail()
-  emailId: string;
+  @IsArray()
+  @IsEmail({}, { each: true }) // Validate each email as an email
+  @IsOptional()
+  emailId: string[];
 
   @IsNotEmpty()
   customerId: number; 

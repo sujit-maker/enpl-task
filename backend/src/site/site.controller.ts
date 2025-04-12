@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Patch, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
 import { SiteService } from './site.service';
 import { CreateSiteDto } from './dto/create-site.dto';
 import { UpdateSiteDto } from './dto/update-site.dto';
@@ -23,7 +23,6 @@ export class SiteController {
      return this.siteService.findByCustomerId(parsedCustomerId);
    }
 
-   
   // Get all sites
   @Get()
   async findAll() {

@@ -15,14 +15,10 @@ export class VendorService {
     return this.prisma.vendor.create({
       data: {
         ...vendorData,
-        website,
-        products,
-        contacts: {
-          create: contacts,
-        },
-        bankDetails: {
-          create: bankDetails,
-        },
+        website: website || undefined,
+        products: products || undefined,
+        contacts: contacts?.length ? { create: contacts } : undefined,
+        bankDetails: bankDetails?.length ? { create: bankDetails } : undefined,
       },
       include: {
         contacts: true,
@@ -30,6 +26,7 @@ export class VendorService {
       },
     });
   }
+  
   
 
   // Get all Vendors including nested relations

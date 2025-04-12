@@ -104,12 +104,12 @@ model Vendor {
   creditTerms    String
   creditLimit    String
   remark         String
-
+  gstpdf           String?
   hodId         Int?
   managerId     Int?
   executiveId  Int?
   createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt
 
   contacts        VendorContact[]  @relation("VendorContacts")
   bankDetails     BankDetail[]     @relation("VendorBankDetails")
@@ -148,6 +148,7 @@ model Customer {
   contactName     String
   contactNumber   String
   emailId         String @unique
+  gstpdf           String?
   hodId         Int?
   managerId     Int? 
   executiveId  Int?                             
@@ -189,15 +190,16 @@ model CustomerContact {
   customerId            Int
   customer              Customer  @relation("CustomerContacts", fields: [customerId], references: [id], onDelete: Cascade)
 }
+
 model Site {
   id            Int      @id @default(autoincrement())
   siteId        String   @unique
   customerId    Int
   siteName      String
   siteAddress   String
-  contactName   String
-  contactNumber String
-  emailId       String
+  contactName   Json?
+  contactNumber Json?
+  emailId       Json?
   hodId         Int?
   executiveId   Int?
   managerId     Int?

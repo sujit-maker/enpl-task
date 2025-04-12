@@ -31,6 +31,7 @@ interface Vendor {
   contactName: string;
   contactNumber: string;
   emailId: string;
+  gstpdf?: string; // Assuming this is the field for the GST PDF file name
   website: string;
   products: string[];
   creditTerms: string;
@@ -77,6 +78,8 @@ const initialFormState: Vendor = {
 const VendorTable: React.FC = () => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [gstPdfFile, setGstPdfFile] = useState<File | null>(null);
   const [formData, setFormData] = useState<Vendor>(initialFormState);
 
   const fetchVendors = async () => {
@@ -84,9 +87,21 @@ const VendorTable: React.FC = () => {
     setVendors(response.data);
   };
 
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/category");
+      const names = response.data.map((c: any) => c.categoryName);
+      setCategories(names);
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+    }
+  };
+
   useEffect(() => {
     fetchVendors();
+    fetchCategories(); // Fetch category names on mount
   }, []);
+  
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -201,11 +216,30 @@ const VendorTable: React.FC = () => {
           bankDetails: validBanks,
         });
       } else {
-        await axios.post("http://localhost:8000/vendors", {
-          ...formData,
-          contacts: validContacts,
-          bankDetails: validBanks,
-        });
+        const payload = new FormData();
+
+payload.append("vendorName", formData.vendorName);
+payload.append("registerAddress", formData.registerAddress);
+payload.append("gstNo", formData.gstNo);
+payload.append("contactName", formData.contactName);
+payload.append("contactNumber", formData.contactNumber);
+payload.append("emailId", formData.emailId);
+payload.append("website", formData.website);
+payload.append("creditTerms", formData.creditTerms);
+payload.append("creditLimit", formData.creditLimit);
+payload.append("remark", formData.remark);
+payload.append("products", JSON.stringify(formData.products));
+payload.append("contacts", JSON.stringify(validContacts));
+payload.append("bankDetails", JSON.stringify(validBanks));
+
+if (gstPdfFile) {
+  payload.append("gstCertificate", gstPdfFile); // 👈 This must match 'gstCertificate' field in your backend FileInterceptor
+}
+
+await axios.post("http://localhost:8000/vendors", payload, {
+  headers: { "Content-Type": "multipart/form-data" },
+});
+
       }
       
       alert(formData.id ? "Vendor updated successfully!" : "Vendor created successfully!");
@@ -243,6 +277,7 @@ const VendorTable: React.FC = () => {
               <th className="p-2 border">Last Name</th>
              
               <th className="p-2 border">Products</th>
+              <th className="p-2 border">GST Certificate</th>
 
 
               <th className="p-2 border">Actions</th>
@@ -263,6 +298,16 @@ const VendorTable: React.FC = () => {
     ? vendor.products.map((p) => p).join(", ")
     : ""}
 </td>
+<td className="p-2 border">
+  {vendor.gstpdf ? (
+    <a href={`http://localhost:8000/gst/${vendor.gstpdf}`} target="_blank" rel="noopener noreferrer">
+      View PDF
+    </a>
+  ) : (
+    "No PDF"
+  )}
+</td>
+
 <td className="p-2 border flex justify-center gap-3 items-center">
   <button
     onClick={() => handleEdit(vendor)}
@@ -317,29 +362,52 @@ const VendorTable: React.FC = () => {
                 />
               ))}
             </div>
-            <div>
-  <label className="font-semibold block mb-2">Products</label>
-  {["A", "B", "C", "D", "E", "F"].map((product) => (
-    <label key={product} className="inline-flex items-center mr-4">
-      <input
-        type="checkbox"
-        value={product}
-        checked={formData.products.includes(product)}
-        onChange={(e) => {
-          const { checked, value } = e.target;
-          setFormData((prev) => ({
-            ...prev,
-            products: checked
-              ? [...prev.products, value]
-              : prev.products.filter((p) => p !== value),
-          }));
-        }}
-        className="mr-2"
-      />
-      {product}
-    </label>
-  ))}
+            <div className="mt-4">
+  <label className="font-semibold block mb-2">GST Certificate (PDF)</label>
+  <input
+    type="file"
+    accept="application/pdf"
+    onChange={(e) => {
+      const file = e.target.files?.[0];
+      if (file && file.type === "application/pdf") {
+        setGstPdfFile(file);
+      } else {
+        alert("Please upload a valid PDF file.");
+      }
+    }}
+    className="block w-full border p-2 rounded"
+  />
+  {gstPdfFile && (
+    <p className="text-sm text-green-700 mt-1">{gstPdfFile.name}</p>
+  )}
 </div>
+
+<div className="mt-6">
+  <label className="font-semibold block mb-2">Products</label>
+  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+    {categories.map((category) => (
+      <label key={category} className="inline-flex items-center">
+        <input
+          type="checkbox"
+          value={category}
+          checked={formData.products.includes(category)}
+          onChange={(e) => {
+            const { checked, value } = e.target;
+            setFormData((prev) => ({
+              ...prev,
+              products: checked
+                ? [...prev.products, value]
+                : prev.products.filter((p) => p !== value),
+            }));
+          }}
+          className="mr-2"
+        />
+        <span>{category}</span>
+      </label>
+    ))}
+  </div>
+</div>
+
 
 
             <div className="mt-6">

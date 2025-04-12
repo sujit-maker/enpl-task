@@ -77,6 +77,7 @@ const initialFormState: Customer = {
 const CustomerTable: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [categories, setCategories] = useState<string[]>([]);
   const [formData, setFormData] = useState<Customer>(initialFormState);
 
   const fetchCustomers = async () => {
@@ -84,7 +85,18 @@ const CustomerTable: React.FC = () => {
     setCustomers(res.data);
   };
 
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/category");
+      const names = response.data.map((c: any) => c.categoryName);
+      setCategories(names);
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+    }
+  };
+
   useEffect(() => {
+    fetchCategories();
     fetchCustomers();
   }, []);
 
@@ -322,31 +334,52 @@ const CustomerTable: React.FC = () => {
           </div>
 
           {/* Products */}
-          <div className="mt-6">
-            <label className="block font-semibold mb-2">Products</label>
-            <div className="flex flex-wrap gap-4">
-              {["A", "B", "C", "D", "E", "F"].map((product) => (
-                <label key={product} className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    value={product}
-                    checked={formData.products.includes(product)}
-                    onChange={(e) => {
-                      const { checked, value } = e.target;
-                      setFormData((prev) => ({
-                        ...prev,
-                        products: checked
-                          ? [...prev.products, value]
-                          : prev.products.filter((p) => p !== value),
-                      }));
-                    }}
-                    className="mr-2"
-                  />
-                  {product}
-                </label>
-              ))}
-            </div>
-          </div>
+          {/* <div className="mt-4">
+  <label className="font-semibold block mb-2">GST Certificate (PDF)</label>
+  <input
+    type="file"
+    accept="application/pdf"
+    onChange={(e) => {
+      const file = e.target.files?.[0];
+      if (file && file.type === "application/pdf") {
+        setGstPdfFile(file);
+      } else {
+        alert("Please upload a valid PDF file.");
+      }
+    }}
+    className="block w-full border p-2 rounded"
+  />
+  {gstPdfFile && (
+    <p className="text-sm text-green-700 mt-1">{gstPdfFile.name}</p>
+  )}
+</div> */}
+
+<div className="mt-6">
+  <label className="font-semibold block mb-2">Products</label>
+  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+    {categories.map((category) => (
+      <label key={category} className="inline-flex items-center">
+        <input
+          type="checkbox"
+          value={category}
+          checked={formData.products.includes(category)}
+          onChange={(e) => {
+            const { checked, value } = e.target;
+            setFormData((prev) => ({
+              ...prev,
+              products: checked
+                ? [...prev.products, value]
+                : prev.products.filter((p) => p !== value),
+            }));
+          }}
+          className="mr-2"
+        />
+        <span>{category}</span>
+      </label>
+    ))}
+  </div>
+</div>
+
 
           {/* Contacts */}
           <div className="mt-6">

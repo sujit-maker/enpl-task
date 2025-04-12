@@ -107,7 +107,11 @@ export class UpdateVendorDto {
   @IsString()
   remark?: string;
 
+  @IsOptional()
+  @IsString()
+  gstpdf?: string; // this will store the file path or filename
 
+  
   @IsOptional()
   @IsInt()
   hodId?: number;
