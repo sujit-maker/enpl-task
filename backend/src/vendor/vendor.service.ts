@@ -12,7 +12,8 @@ export class VendorService {
   async create(createVendorDto: CreateVendorDto) {
     const { contacts, bankDetails, website, products, ...vendorData } = createVendorDto;
   
-    return this.prisma.vendor.create({
+    // First create vendor without vendorCode
+    const createdVendor = await this.prisma.vendor.create({
       data: {
         ...vendorData,
         website: website || undefined,
@@ -25,7 +26,23 @@ export class VendorService {
         bankDetails: true,
       },
     });
+  
+    // Generate vendorCode from the auto-incremented ID
+    const vendorCode = `EN-VD-${String(createdVendor.id).padStart(3, '0')}`;
+  
+    // Update vendor with the generated vendorCode
+    const updatedVendor = await this.prisma.vendor.update({
+      where: { id: createdVendor.id },
+      data: { vendorCode },
+      include: {
+        contacts: true,
+        bankDetails: true,
+      },
+    });
+  
+    return updatedVendor;
   }
+  
   
   
 

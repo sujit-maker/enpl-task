@@ -8,19 +8,42 @@ export class SiteService {
   constructor(private prisma: PrismaService) {}
 
   // Create a Site
-  async create(createSiteDto: CreateSiteDto) {
-    return this.prisma.site.create({
-      data: {
-        siteId: createSiteDto.siteId,
-        siteName: createSiteDto.siteName,
-        siteAddress: createSiteDto.siteAddress,
-        contactName: createSiteDto.contactName, // Pass as an array of contact names
-        contactNumber: createSiteDto.contactNumber, // Pass as an array of contact numbers
-        emailId: createSiteDto.emailId, // Pass as an array of emails
-        customerId: Number(createSiteDto.customerId), // Ensure customerId is a number
-      },
-    });
+ // Create a Site with auto-incrementing siteCode
+async create(createSiteDto: CreateSiteDto) {
+  // Get the last site created to get the highest current siteCode
+  const lastSite = await this.prisma.site.findFirst({
+    orderBy: {
+      siteCode: 'desc', // Order by siteCode in descending order to get the last one
+    },
+    select: {
+      siteCode: true, // Only retrieve the siteCode
+    },
+  });
+
+  // Extract the numeric part from the last siteCode (assuming the format is "EN-CAS-001")
+  let nextSiteNumber = 1; // Default if no site exists yet
+  if (lastSite && lastSite.siteCode) {
+    const lastNumber = lastSite.siteCode.split('-')[2]; // Split and get the number part
+    nextSiteNumber = parseInt(lastNumber, 10) + 1; // Increment the number
   }
+
+  // Format the next siteCode (e.g., "EN-CAS-001")
+  const nextsiteCode = `EN-CAS-${String(nextSiteNumber).padStart(3, '0')}`;
+
+  // Create the site with the newly generated siteCode
+  return this.prisma.site.create({
+    data: {
+      siteCode: nextsiteCode, // Use the generated siteCode
+      siteName: createSiteDto.siteName,
+      siteAddress: createSiteDto.siteAddress,
+      contactName: createSiteDto.contactName, // Pass as an array of contact names
+      contactNumber: createSiteDto.contactNumber, // Pass as an array of contact numbers
+      emailId: createSiteDto.emailId, // Pass as an array of emails
+      customerId: Number(createSiteDto.customerId), // Ensure customerId is a number
+    },
+  });
+}
+
   
 
   // Get all Sites

@@ -92,6 +92,7 @@ model Service {
 // Define the Vendor model
 model Vendor {
   id              Int    @id @default(autoincrement())
+  vendorCode      String? @unique  
   vendorName      String
   registerAddress String
   gstNo           String @unique
@@ -141,6 +142,7 @@ model VendorContact {
 
 model Customer {
   id              Int    @id @default(autoincrement())
+  customerCode String? @unique  
   customerId      String @unique
   customerName    String
   registerAddress String
@@ -193,7 +195,7 @@ model CustomerContact {
 
 model Site {
   id            Int      @id @default(autoincrement())
-  siteId        String   @unique
+  siteCode      String?   @unique
   customerId    Int
   siteName      String
   siteAddress   String

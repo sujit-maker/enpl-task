@@ -25,6 +25,7 @@ interface BankDetail {
 
 interface Vendor {
   id?: number;
+  vendorCode?: string; // Assuming this is the field for the vendor code
   vendorName: string;
   registerAddress: string;
   gstNo: string;
@@ -272,6 +273,7 @@ await axios.post("http://localhost:8000/vendors", payload, {
       <table className="min-w-[700px] w-full text-center border-collapse border border-gray-200"> 
           <thead className="bg-gray-100">
             <tr>
+              <th className="p-2 border">Vendor ID</th>
               <th className="p-2 border">Vendor Name</th>
               <th className="p-2 border">First Name</th>
               <th className="p-2 border">Last Name</th>
@@ -286,6 +288,7 @@ await axios.post("http://localhost:8000/vendors", payload, {
           <tbody>
             {vendors.map((vendor) => (
               <tr key={vendor.id} className="border-b">
+                <td className="p-2 border">{vendor.vendorCode}</td>
                 <td className="p-2 border">{vendor.vendorName}</td>
                 <td className="p-2 border">
                   {vendor.contacts.map((c) => c.firstName).join(", ")}

@@ -63,6 +63,11 @@ class CustomerBankDetailDto {
 }
 
 export class CreateCustomerDto {
+
+  @IsNotEmpty()
+  @IsString()
+  customerCode :string;
+
   @IsNotEmpty()
   @IsString()
   customerId: string;

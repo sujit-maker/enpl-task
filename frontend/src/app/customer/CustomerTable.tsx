@@ -23,6 +23,7 @@ interface BankDetail {
 
 interface Customer {
   id?: number;
+  customerCode: string;
   customerId: string;
   customerName: string;
   registerAddress: string;
@@ -58,6 +59,7 @@ const emptyBank: BankDetail = {
 };
 
 const initialFormState: Customer = {
+  customerCode: "",
   customerId: "",
   customerName: "",
   registerAddress: "",
@@ -256,6 +258,7 @@ const CustomerTable: React.FC = () => {
         <table className="min-w-[800px] w-full text-center border-collapse border border-gray-200">
           <thead className="bg-gray-100">
             <tr>
+              <th className="p-2 border">Customer ID</th>
               <th className="p-2 border">Customer Name</th>
               <th className="p-2 border">Contacts</th>
               <th className="p-2 border">Products</th>
@@ -265,6 +268,7 @@ const CustomerTable: React.FC = () => {
           <tbody>
             {customers.map((cust) => (
               <tr key={cust.id} className="border-b">
+                <td className="p-2 border">{cust.customerCode}</td>
                 <td className="p-2 border">{cust.customerName}</td>
                 <td className="p-2 border">
                   {cust.contacts

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { PencilLine, Trash2 } from "lucide-react";
@@ -11,8 +11,8 @@ interface Customer {
 
 interface Site {
   id: number;
-  siteId: string;
   customerId: number;
+  siteCode: string;
   siteName: string;
   siteAddress: string;
   contactName: string[];
@@ -22,7 +22,6 @@ interface Site {
 }
 
 interface FormData {
-  siteId: string;
   siteName: string;
   siteAddress: string;
   contactName: string[];
@@ -38,16 +37,14 @@ const SiteTable: React.FC = () => {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [selectedSite, setSelectedSite] = useState<Site | null>(null);
   const [formData, setFormData] = useState<FormData>({
-    siteId: "",
     siteName: "",
     siteAddress: "",
-    contactName: ["", ""], // Initialize with two fields for demonstration
-    contactNumber: ["", ""],
-    emailId: ["", ""],
+    contactName: [""],
+    contactNumber: [""],
+    emailId: [""],
     customerId: 0,
   });
 
-  // Pagination States
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -75,14 +72,11 @@ const SiteTable: React.FC = () => {
   ) => {
     const { name, value } = e.target;
     if (index !== undefined) {
-      // Handle array inputs (contactName, contactNumber, emailId)
       setFormData((prevData) => ({
         ...prevData,
-        [name]: Array.isArray(prevData[name as keyof FormData])
-          ? (prevData[name as keyof FormData] as string[]).map((item, idx) =>
-              idx === index ? value : item
-            )
-          : prevData[name as keyof FormData],
+        [name]: (prevData[name as keyof FormData] as string[]).map((item, idx) =>
+          idx === index ? value : item
+        ),
       }));
     } else {
       setFormData((prevData) => ({
@@ -92,10 +86,12 @@ const SiteTable: React.FC = () => {
     }
   };
 
-  const handleAddField = (field: "contactName" | "contactNumber" | "emailId") => {
+  const handleAddField = () => {
     setFormData((prevData) => ({
       ...prevData,
-      [field]: [...(prevData[field as keyof FormData] as string[]), ""],
+      contactName: [...prevData.contactName, ""],
+      contactNumber: [...prevData.contactNumber, ""],
+      emailId: [...prevData.emailId, ""],
     }));
   };
 
@@ -103,9 +99,7 @@ const SiteTable: React.FC = () => {
     field: "contactName" | "contactNumber" | "emailId",
     index: number
   ) => {
-    const updatedField = Array.isArray(formData[field as keyof FormData])
-      ? [...(formData[field as keyof FormData] as string[])]
-      : [];
+    const updatedField = [...(formData[field] as string[])];
     updatedField.splice(index, 1);
     setFormData((prevData) => ({
       ...prevData,
@@ -114,8 +108,8 @@ const SiteTable: React.FC = () => {
   };
 
   const handleCreate = async () => {
-    const { siteId, siteName, siteAddress, contactName, contactNumber, emailId } = formData;
-    if (!siteId || !siteName || !siteAddress || !contactName || !contactNumber || !emailId) {
+    const { siteName, siteAddress, contactName, contactNumber, emailId } = formData;
+    if (!siteName || !siteAddress || !contactName || !contactNumber || !emailId) {
       alert("Please fill in all required fields.");
       return;
     }
@@ -132,10 +126,7 @@ const SiteTable: React.FC = () => {
   const handleUpdate = async () => {
     if (selectedSite) {
       try {
-        await axios.put(
-          `http://localhost:8000/sites/${selectedSite.id}`,
-          formData
-        );
+        await axios.put(`http://localhost:8000/sites/${selectedSite.id}`, formData);
         alert("Site updated successfully!");
         setIsUpdateModalOpen(false);
         fetchSites();
@@ -162,9 +153,9 @@ const SiteTable: React.FC = () => {
     fetchCustomers();
   }, []);
 
-  const indexOfLastUser = currentPage * itemsPerPage;
-  const indexOfFirstUser = indexOfLastUser - itemsPerPage;
-  const currentSites = sites.slice(indexOfFirstUser, indexOfLastUser);
+  const indexOfLast = currentPage * itemsPerPage;
+  const indexOfFirst = indexOfLast - itemsPerPage;
+  const currentSites = sites.slice(indexOfFirst, indexOfLast);
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
@@ -175,12 +166,11 @@ const SiteTable: React.FC = () => {
           <button
             onClick={() => {
               setFormData({
-                siteId: "",
                 siteName: "",
                 siteAddress: "",
-                contactName: ["", ""], // Reset fields
-                contactNumber: ["", ""],
-                emailId: ["", ""],
+                contactName: [""],
+                contactNumber: [""],
+                emailId: [""],
                 customerId: 0,
               });
               setIsCreateModalOpen(true);
@@ -191,10 +181,10 @@ const SiteTable: React.FC = () => {
           </button>
         </div>
         <div className="overflow-x-auto">
-        <table className="min-w-[800px] w-full text-center border-collapse border border-gray-200">
-          <thead className="bg-gray-100">
+          <table className="min-w-[800px] w-full text-center border-collapse border border-gray-200">
+            <thead className="bg-gray-100">
               <tr>
-                <th className="px-6 py-3 text-left">Site ID</th>
+                <th className="border border-gray-200 p-4">Site ID</th>
                 <th className="px-6 py-3 text-left">Site Name</th>
                 <th className="px-6 py-3 text-left">Customer</th>
                 <th className="px-6 py-3 text-left">Site Address</th>
@@ -207,51 +197,45 @@ const SiteTable: React.FC = () => {
             <tbody className="bg-white">
               {currentSites.map((site) => (
                 <tr key={site.id} className="hover:bg-gray-100">
-                  <td className="border px-6 py-3">{site.siteId}</td>
+                  <td className="border px-6 py-3">{site.siteCode}</td>
                   <td className="border px-6 py-3">{site.siteName}</td>
                   <td className="border px-6 py-3">{site.Customer.customerName}</td>
                   <td className="border px-6 py-3">{site.siteAddress}</td>
                   <td className="border px-6 py-3">{site.contactName.join(", ")}</td>
                   <td className="border px-6 py-3">{site.contactNumber.join(", ")}</td>
                   <td className="border px-6 py-3">{site.emailId.join(", ")}</td>
-
                   <td className="border px-6 py-3">
-  <div className="flex justify-center items-center gap-3">
-    <button
-      onClick={() => {
-        setSelectedSite(site);
-        setFormData({
-          siteId: site.siteId,
-          siteName: site.siteName,
-          siteAddress: site.siteAddress,
-          contactName: site.contactName,
-          contactNumber: site.contactNumber,
-          emailId: site.emailId,
-          customerId: site.customerId,
-        });
-        setIsUpdateModalOpen(true);
-      }}
-      className="text-blue-500 hover:text-blue-700"
-      title="Edit"
-    >
-      <PencilLine size={18} />
-    </button>
-
-    <button
-      onClick={() => handleDelete(site.id)}
-      className="text-red-500 hover:text-red-700"
-      title="Delete"
-    >
-      <Trash2 size={18} />
-    </button>
-  </div>
-</td>
-
+                    <div className="flex justify-center items-center gap-3">
+                      <button
+                        onClick={() => {
+                          setSelectedSite(site);
+                          setFormData({
+                            siteName: site.siteName,
+                            siteAddress: site.siteAddress,
+                            contactName: [...site.contactName],
+                            contactNumber: [...site.contactNumber],
+                            emailId: [...site.emailId],
+                            customerId: site.customerId,
+                          });
+                          setIsUpdateModalOpen(true);
+                        }}
+                        className="text-blue-500 hover:text-blue-700"
+                      >
+                        <PencilLine size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(site.id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {/* Pagination */}
+
           <div className="flex justify-center mt-4">
             <button
               onClick={() => paginate(currentPage - 1)}
@@ -271,30 +255,19 @@ const SiteTable: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal for Add/Update */}
-      {isCreateModalOpen && (
+      {(isCreateModalOpen || isUpdateModalOpen) && (
         <Modal
-          title="Add Customer Site"
+          title={isCreateModalOpen ? "Add Customer Site" : "Update Site"}
           formData={formData}
           customers={customers}
           onInputChange={handleInputChange}
           onAddField={handleAddField}
           onRemoveField={handleRemoveField}
-          onSave={handleCreate}
-          onClose={() => setIsCreateModalOpen(false)}
-        />
-      )}
-
-      {isUpdateModalOpen && (
-        <Modal
-          title="Update Site"
-          formData={formData}
-          customers={customers}
-          onInputChange={handleInputChange}
-          onAddField={handleAddField}
-          onRemoveField={handleRemoveField}
-          onSave={handleUpdate}
-          onClose={() => setIsUpdateModalOpen(false)}
+          onSave={isCreateModalOpen ? handleCreate : handleUpdate}
+          onClose={() => {
+            setIsCreateModalOpen(false);
+            setIsUpdateModalOpen(false);
+          }}
         />
       )}
     </div>
@@ -303,19 +276,18 @@ const SiteTable: React.FC = () => {
 
 const Modal: React.FC<{
   title: string;
-  formData: any;
+  formData: FormData;
   customers: Customer[];
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, index?: number) => void;
-  onAddField: (field: "contactName" | "contactNumber" | "emailId") => void;
+  onAddField: () => void;
   onRemoveField: (field: "contactName" | "contactNumber" | "emailId", index: number) => void;
   onSave: () => void;
   onClose: () => void;
 }> = ({ title, formData, customers, onInputChange, onAddField, onRemoveField, onSave, onClose }) => (
   <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="bg-white p-6 rounded-lg w-96">
+    <div className="bg-white p-6 rounded-lg w-[500px] max-h-[90vh] overflow-auto">
       <h2 className="text-xl font-bold mb-4">{title}</h2>
 
-      {/* Customer Dropdown */}
       <select
         name="customerId"
         value={formData.customerId}
@@ -330,14 +302,6 @@ const Modal: React.FC<{
         ))}
       </select>
 
-      {/* Site Fields */}
-      <input
-        name="siteId"
-        value={formData.siteId}
-        onChange={onInputChange}
-        placeholder="Site ID"
-        className="w-full mb-3 p-2 border rounded"
-      />
       <input
         name="siteName"
         value={formData.siteName}
@@ -353,81 +317,54 @@ const Modal: React.FC<{
         className="w-full mb-3 p-2 border rounded"
       />
 
-      {/* Dynamic Contact Fields */}
-      {formData.contactName.map((_: string, index: number) => (
-  <div key={index} className="mb-3 flex items-center">
-    <input
-      name="contactName"
-      value={formData.contactName[index]}
-      onChange={(e) => onInputChange(e, index)}
-      placeholder="Contact Name"
-      className="w-1/3 p-2 border rounded"
-    />
-    <input
-      name="contactNumber"
-      value={formData.contactNumber[index]}
-      onChange={(e) => onInputChange(e, index)}
-      placeholder="Contact Number"
-      className="w-1/3 p-2 border rounded ml-2"
-    />
-    <input
-      name="emailId"
-      value={formData.emailId[index]}
-      onChange={(e) => onInputChange(e, index)}
-      placeholder="Email ID"
-      className="w-1/3 p-2 border rounded ml-2"
-    />
-    <button
-      type="button"
-      onClick={() => {
-        const updatedContactName = [...formData.contactName];
-        const updatedContactNumber = [...formData.contactNumber];
-        const updatedEmailId = [...formData.emailId];
-        updatedContactName.splice(index, 1);
-        updatedContactNumber.splice(index, 1);
-        updatedEmailId.splice(index, 1);
-        onInputChange(
-          {
-            target: {
-              name: "contactName",
-              value: updatedContactName,
-            },
-          } as any
-        );
-        onInputChange(
-          {
-            target: {
-              name: "contactNumber",
-              value: updatedContactNumber,
-            },
-          } as any
-        );
-        onInputChange(
-          {
-            target: {
-              name: "emailId",
-              value: updatedEmailId,
-            },
-          } as any
-        );
-      }}
-      className="ml-2 text-red-500"
-    >
-      - Remove
-    </button>
-  </div>
-))}
-      <div className="flex justify-end space-x-2">
+      {formData.contactName.map((_, index) => (
+        <div key={index} className="flex items-center gap-2 mb-2">
+          <input
+            name="contactName"
+            value={formData.contactName[index]}
+            onChange={(e) => onInputChange(e, index)}
+            placeholder="Contact Name"
+            className="w-1/3 p-2 border rounded"
+          />
+          <input
+            name="contactNumber"
+            value={formData.contactNumber[index]}
+            onChange={(e) => onInputChange(e, index)}
+            placeholder="Contact Number"
+            className="w-1/3 p-2 border rounded"
+          />
+          <input
+            name="emailId"
+            value={formData.emailId[index]}
+            onChange={(e) => onInputChange(e, index)}
+            placeholder="Email ID"
+            className="w-1/3 p-2 border rounded"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              onRemoveField("contactName", index);
+              onRemoveField("contactNumber", index);
+              onRemoveField("emailId", index);
+            }}
+            className="text-red-500"
+          >
+            - Remove
+          </button>
+        </div>
+      ))}
+
+      <div className="flex justify-end mb-4">
         <button
           type="button"
-          onClick={() => onAddField("contactName")}
+          onClick={onAddField}
           className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
         >
           + Add Contact
         </button>
       </div>
 
-      <div className="flex justify-between mt-5">
+      <div className="flex justify-between">
         <button
           onClick={onClose}
           className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"

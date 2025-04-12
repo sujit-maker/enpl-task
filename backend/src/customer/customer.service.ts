@@ -7,32 +7,48 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 export class CustomerService {
   constructor(private prisma: PrismaService) {}
 
-  // Create a Customer with contacts and bankDetails
-  async create(createCustomerDto: CreateCustomerDto) {
-    const {
-      contacts,
-      bankDetails,
-      products,
-      ...customerData
-    } = createCustomerDto as any;
+// Create a Customer with contacts and bankDetails
+async create(createCustomerDto: CreateCustomerDto) {
+  const {
+    contacts,
+    bankDetails,
+    products,
+    ...customerData
+  } = createCustomerDto as any;
 
-    return this.prisma.customer.create({
-      data: {
-        ...customerData,
-        products: Array.isArray(products) ? products : [],
-        contacts: {
-          create: contacts || [],
-        },
-        bankDetails: {
-          create: bankDetails || [],
-        },
+  // Create the customer without customerCode first
+  const createdCustomer = await this.prisma.customer.create({
+    data: {
+      ...customerData,
+      products: Array.isArray(products) ? products : [],
+      contacts: {
+        create: contacts || [],
       },
-      include: {
-        contacts: true,
-        bankDetails: true,
+      bankDetails: {
+        create: bankDetails || [],
       },
-    });
-  }
+    },
+    include: {
+      contacts: true,
+      bankDetails: true,
+    },
+  });
+
+  // Generate a customerCode based on the created customer ID
+  const customerCode = `EN-CA-${String(createdCustomer.id).padStart(3, '0')}`;
+
+  // Update the customer with the generated customerCode
+  const updatedCustomer = await this.prisma.customer.update({
+    where: { id: createdCustomer.id },
+    data: { customerCode },
+    include: {
+      contacts: true,
+      bankDetails: true,
+    },
+  });
+
+  return updatedCustomer;
+}
 
   // Get all Customers
   async findAll() {
@@ -55,6 +71,7 @@ export class CustomerService {
         Sites: true,
       },
     });
+    
   }
 
   // Update Customer details

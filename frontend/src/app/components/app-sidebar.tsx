@@ -19,7 +19,6 @@
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [serviceOpen, setServiceOpen] = useState(false);
   const [addressBookOpen, setAddressBookOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
