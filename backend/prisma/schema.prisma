@@ -97,6 +97,8 @@ model MaterialDelivery {
   deliveryChallan String?
   refNumber       String?
   customerId      Int
+    createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
   customer        Customer   @relation(fields: [customerId], references: [id])
   vendorId        Int
   vendor          Vendor     @relation(fields: [vendorId], references: [id])
