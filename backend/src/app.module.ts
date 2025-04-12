@@ -18,6 +18,10 @@ import { ServiceCategoryController } from './service-category/service-category.c
 import { ServiceCategoryModule } from './service-category/service-category.module';
 import { ServiceSubCategoryService } from './service-sub-category/service-sub-category.service';
 import { ServiceSubCategoryModule } from './service-sub-category/service-sub-category.module';
+import { InventoryService } from './inventory/inventory.service';
+import { InventoryController } from './inventory/inventory.controller';
+import { InventoryModule } from './inventory/inventory.module';
+import { MaterialDeliveryModule } from './material-delivery/material-delivery.module';
 
 @Module({
   imports: [
@@ -35,8 +39,10 @@ import { ServiceSubCategoryModule } from './service-sub-category/service-sub-cat
     TaskModule,
     ServiceCategoryModule,
     ServiceSubCategoryModule,
+    InventoryModule,
+    MaterialDeliveryModule,
   ],
-  controllers: [ServiceController, CustomerController, ServiceCategoryController],
-  providers: [ServiceService, ServiceSubCategoryService],
+  controllers: [ServiceController, CustomerController, ServiceCategoryController, InventoryController],
+  providers: [ServiceService, ServiceSubCategoryService, InventoryService],
 })
 export class AppModule {}

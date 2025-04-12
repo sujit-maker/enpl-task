@@ -72,7 +72,40 @@ model Product {
   subCategoryId      Int
   category           Category    @relation(fields: [categoryId], references: [id])
   subCategory        SubCategory @relation(fields: [subCategoryId], references: [id])
+  inventory          Inventory[]
+  materialDelivery   MaterialDelivery[]
 }
+
+model Inventory{
+  id          Int         @id @default(autoincrement())
+  productId   Int
+  serialNumber String
+  macAddress   String
+  vendorId   Int
+  purchaseDate DateTime
+  purchaseInvoice String
+  vendor   Vendor     @relation(fields: [vendorId], references: [id])
+  product     Product     @relation(fields: [productId], references: [id])
+  materialDelivery MaterialDelivery[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MaterialDelivery {
+  id              Int        @id @default(autoincrement())
+  deliveryType    String
+  deliveryChallan String?
+  refNumber       String?
+  customerId      Int
+  customer        Customer   @relation(fields: [customerId], references: [id])
+  vendorId        Int
+  vendor          Vendor     @relation(fields: [vendorId], references: [id])
+  inventoryId     Int
+  inventory       Inventory  @relation(fields: [inventoryId], references: [id])
+  productId       Int
+  product         Product    @relation(fields: [productId], references: [id])
+}
+
 
 // Define the Service model
 model Service {
@@ -114,6 +147,8 @@ model Vendor {
 
   contacts        VendorContact[]  @relation("VendorContacts")
   bankDetails     BankDetail[]     @relation("VendorBankDetails")
+  inventory       Inventory[]  
+  materialDelivery MaterialDelivery[]
 }
 
 model BankDetail {
@@ -161,6 +196,7 @@ model Customer {
   creditTerms    String
   creditLimit    String
   remark         String
+  materialDelivery MaterialDelivery[]
   createdAt DateTime @default(now())
 updatedAt DateTime @updatedAt
 

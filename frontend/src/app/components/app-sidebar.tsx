@@ -255,6 +255,24 @@
                     Product SKU
                   </a>
                 </li>
+                <li>
+                  <a
+                    href="/inventory"
+                    className="block px-2 py-1 hover:bg-gray-700 hover:text-white rounded"
+                    aria-label="Inventory"
+                  >
+                    Inventory
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/material"
+                    className="block px-2 py-1 hover:bg-gray-700 hover:text-white rounded"
+                    aria-label="Material Delivery"
+                  >
+                    Material Delivery
+                  </a>
+                </li>
               </ul>
             )}
           </li>
