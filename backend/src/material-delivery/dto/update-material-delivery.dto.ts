@@ -1,16 +1,19 @@
-import { IsInt, IsString, IsOptional } from 'class-validator';
+import { IsInt, IsString, IsOptional, IsNotEmpty } from 'class-validator';
 
 export class UpdateMaterialDeliveryDto {
   @IsOptional()
   @IsString()
+  @IsNotEmpty()
   deliveryType?: string;
 
   @IsOptional()
   @IsString()
+  @IsNotEmpty()
   deliveryChallan?: string;
 
   @IsOptional()
   @IsString()
+  @IsNotEmpty()
   refNumber?: string;
 
   @IsOptional()

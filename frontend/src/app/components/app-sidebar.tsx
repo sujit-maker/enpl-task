@@ -6,6 +6,7 @@
     BiStoreAlt,
     BiTask,
     BiSolidDashboard,
+    BiServer,
   } from "react-icons/bi";
   import { ChevronDown, ChevronUp, Menu, Settings, X, LogOut } from "lucide-react";
   import { FaRegAddressBook, FaLock } from "react-icons/fa";
@@ -276,6 +277,18 @@
               </ul>
             )}
           </li>
+
+          <li>
+            <a
+              href="/servicecontract"
+              className="flex items-center px-4 py-2 hover:bg-gray-700 rounded-lg"
+              aria-label="Service Contract"
+            >
+              <BiServer className="w-6 h-6 hover:text-gray-400" />
+              {isSidebarOpen && <span className="ml-4">Service Contract</span>}
+            </a>
+          </li>
+          
 
           {/* Task Management */}
           <li>

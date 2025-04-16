@@ -22,6 +22,7 @@ import { InventoryService } from './inventory/inventory.service';
 import { InventoryController } from './inventory/inventory.controller';
 import { InventoryModule } from './inventory/inventory.module';
 import { MaterialDeliveryModule } from './material-delivery/material-delivery.module';
+import { ServicecontractModule } from './servicecontract/servicecontract.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { MaterialDeliveryModule } from './material-delivery/material-delivery.mo
     ServiceSubCategoryModule,
     InventoryModule,
     MaterialDeliveryModule,
+    ServicecontractModule,
   ],
   controllers: [ServiceController, CustomerController, ServiceCategoryController, InventoryController],
   providers: [ServiceService, ServiceSubCategoryService, InventoryService],

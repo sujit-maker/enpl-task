@@ -92,20 +92,25 @@ model Inventory{
 }
 
 model MaterialDelivery {
-  id              Int        @id @default(autoincrement())
+  id              Int         @id @default(autoincrement())
   deliveryType    String
   deliveryChallan String?
   refNumber       String?
-  customerId      Int
-    createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  customer        Customer   @relation(fields: [customerId], references: [id])
-  vendorId        Int
-  vendor          Vendor     @relation(fields: [vendorId], references: [id])
-  inventoryId     Int
-  inventory       Inventory  @relation(fields: [inventoryId], references: [id])
+
+  customerId      Int? 
+  vendorId        Int?
+
+  customer        Customer?  @relation(fields: [customerId], references: [id])
+  vendor          Vendor?    @relation(fields: [vendorId], references: [id])
+
+  inventoryId     Int?
+  inventory       Inventory? @relation(fields: [inventoryId], references: [id])
+
   productId       Int
-  product         Product    @relation(fields: [productId], references: [id])
+  product         Product     @relation(fields: [productId], references: [id])
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 }
 
 
@@ -179,7 +184,7 @@ model VendorContact {
 
 model Customer {
   id              Int    @id @default(autoincrement())
-  customerCode String? @unique  
+  customerCode    String? @unique  
   customerId      String @unique
   customerName    String
   registerAddress String
@@ -187,10 +192,10 @@ model Customer {
   contactName     String
   contactNumber   String
   emailId         String @unique
-  gstpdf           String?
-  hodId         Int?
-  managerId     Int? 
-  executiveId  Int?                             
+  gstpdf          String?
+  hodId           Int?
+  managerId       Int? 
+  executiveId     Int?                             
   Sites           Site[]
   Task            Task[]
   website        String?
@@ -205,6 +210,7 @@ updatedAt DateTime @updatedAt
 
   contacts        CustomerContact[]  @relation("CustomerContacts")
   bankDetails     CustomerBankDetail[]     @relation("CustomerBankDetails")
+  serviceContracts ServiceContracts[]
 }
 
 model CustomerBankDetail {
@@ -245,7 +251,47 @@ model Site {
   managerId     Int?
   Customer      Customer @relation(fields: [customerId], references: [id])
   Task          Task[]
+  ServiceContracts ServiceContracts[]
 }
+
+model ServiceContracts {
+  id                   Int                 @id @default(autoincrement())
+  contractNo           String            @unique
+  customerId           Int
+  siteId               Int
+  relmanager           String
+  serviceCategory      String
+startDate          DateTime
+  endDate              DateTime
+  visitSite            String
+  maintenanceVisit     String
+  contractDescription  String
+
+  Customer             Customer           @relation(fields: [customerId], references: [id])
+  Site                 Site               @relation(fields: [siteId], references: [id])
+  contractInventories  ContractInventory[]
+
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+}
+
+model ContractInventory {
+  id               Int      @id @default(autoincrement())
+  contractId       Int
+  inventoryType    String
+  productName       String
+  inventoryName    String
+  serialno         String
+  macAddress       String
+  dateOfPurchase   DateTime
+  remark           String
+
+  contract         ServiceContracts @relation(fields: [contractId], references: [id])
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
 
 model Task {
   id           Int        @id @default(autoincrement())

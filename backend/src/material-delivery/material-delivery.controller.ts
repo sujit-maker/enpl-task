@@ -9,6 +9,7 @@ export class MaterialDeliveryController {
 
   @Post()
   create(@Body() dto: CreateMaterialDeliveryDto) {
+    console.log("Received request:", dto);  // Log the request to see if it is coming through
     return this.service.create(dto);
   }
 

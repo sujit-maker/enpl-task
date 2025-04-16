@@ -1,24 +1,36 @@
-import { IsInt, IsString } from 'class-validator';
+import { IsInt, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+
+class ItemDto {
+  @IsString()
+  serialNumber: string;
+
+  @IsString()
+  macAddress: string;
+
+  @IsInt()
+  productId: number;
+
+  @IsInt()
+  inventoryId: number;
+}
 
 export class CreateMaterialDeliveryDto {
   @IsString()
   deliveryType: string;
 
-  @IsString()
-  deliveryChallan: string;
-
+  @IsOptional()
   @IsString()
   refNumber: string;
 
   @IsInt()
   customerId: number;
 
+  @IsOptional()
   @IsInt()
-  vendorId: number;
+  vendorId?: number;
 
-  @IsInt()
-  inventoryId: number;
-
-  @IsInt()
-  productId: number;
+  @ValidateNested({ each: true })
+  @Type(() => ItemDto)
+  items: ItemDto[];
 }
